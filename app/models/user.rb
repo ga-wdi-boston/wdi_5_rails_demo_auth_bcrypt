@@ -3,6 +3,7 @@ class User < ActiveRecord::Base
 	# This gives us setter/getter methods 
 	# This might not be in the database
 	attr_accessor :password
+	before_save :encrypt_password
 
 	# This is validation
 	# It checks that the password_confirmation == password
@@ -14,5 +15,15 @@ class User < ActiveRecord::Base
 	validates :email, uniqueness: true
 
 	# Allows mass assignment of these
-  attr_accessible :email, :password_hash, :password_salt
+  attr_accessible :email, :password, :password_confirmation
+
+  def encrypt_password
+  	if password.present?
+  		# This generates a random string that helps me encrypt the password
+  		self.password_salt = BCrypt::Engine.generate_salt
+
+  		# This encrypts the password, using the salt we just created
+  		self.password_hash = BCrypt::Engine.hash_secret(password, password_salt)
+  	end
+  end
 end
