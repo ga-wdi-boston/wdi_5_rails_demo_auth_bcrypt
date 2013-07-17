@@ -17,6 +17,9 @@ class User < ActiveRecord::Base
 	# Allows mass assignment of these
   attr_accessible :email, :password, :password_confirmation
 
+  # I can only call this with
+  # u = User.first
+  # u.encrypt_password
   def encrypt_password
   	if password.present?
   		# This generates a random string that helps me encrypt the password
@@ -26,4 +29,32 @@ class User < ActiveRecord::Base
   		self.password_hash = BCrypt::Engine.hash_secret(password, password_salt)
   	end
   end
+
+  # I can call this with User.authenticate(l,p)
+  def self.authenticate(email, password)
+  	# This will auth a user
+  	user = User.find_by_email(email)
+  	if user && user.password_hash == BCrypt::Engine.hash_secret(password, user.password_salt)
+  		user
+  	else
+  		nil
+  	end
+  end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
